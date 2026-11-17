@@ -67,9 +67,7 @@ public class ValidateYouTubeAPIKey extends GetFeaturedVideos {
 	}
 
 
-	@Override
-	protected Long getMaxResults() {
-		return 1L;
+	
 	}
 
 }
