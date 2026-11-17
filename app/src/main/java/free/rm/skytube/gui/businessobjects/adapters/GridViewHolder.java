@@ -94,7 +94,8 @@ public class GridViewHolder extends RecyclerView.ViewHolder implements Serializa
 				mainActivityListener.onChannelClick(((YouTubeChannel) currentCard).getChannelId());
 			}
 		});
-
+        itemView.setOnClickListener(v -> binding.thumbnailImageView.performClick());
+		
 		View.OnClickListener channelOnClickListener = v -> {
 			if(mainActivityListener != null) {
 				if (currentCard instanceof YouTubeVideo) {
