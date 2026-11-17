@@ -67,6 +67,13 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.stream.StreamInfo;
+import org.schabi.newpipe.extractor.InfoItem;
+import org.schabi.newpipe.extractor.stream.StreamInfoItem;
+import free.rm.skytube.businessobjects.YouTube.newpipe.NewPipeService;
+import free.rm.skytube.gui.businessobjects.YouTubePlayer;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
@@ -301,11 +308,21 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                     Logger.i(this, ">> onPlayerStateChanged " + playWhenReady + " state=" + playbackState);
                     videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
 
-                    if (videoIsPlaying) {
-                        preventDeviceSleeping(true);
+                                        if (videoIsPlaying) {
+                        preventDevicesSleeping(true);
                         playbackSpeedController.updateMenu();
+
+                        // AUTO-FULLSCREEN: sembunyikan ActionBar, kontrol, & nav bar saat video mulai diputar
+                        hideNavigationBar();
+                        ActionBar ab = getSupportActionBar();
+                        if (ab != null && ab.isShowing()) {
+                            ab.hide();
+                        }
+                        if (fragmentBinding != null && fragmentBinding.playerView != null) {
+                            fragmentBinding.playerView.hideController();
+                        }
                     } else {
-                        preventDeviceSleeping(false);
+                        preventDevicesSleeping(false);
                     }
 
                     if (playbackStateListener != null) {
@@ -319,6 +336,36 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                             playbackStateListener.ended();
                         }
                     }
+
+                    // CONTINUOUS PLAY RELATED: otomatis putar video terkait pertama saat video selesai
+                    if (playbackState == Player.STATE_ENDED && currentStreamInfo != null && currentStreamInfo.getRelatedItems() != null) {
+                        String nextVideoId = null;
+                        for (InfoItem item : currentStreamInfo.getRelatedItems()) {
+                            if (item instanceof StreamInfoItem) {
+                                try {
+                                    nextVideoId = NewPipeService.get().getVideoId(item.getUrl()).getId();
+                                    if (nextVideoId != null && (youTubeVideo == null || !nextVideoId.equals(youTubeVideo.getId()))) {
+                                        break;
+                                    }
+                                } catch (Exception ignored) {}
+                            }
+                        }
+                        if (nextVideoId != null) {
+                            final String targetId = nextVideoId;
+                            compositeDisposable.add(
+                                Single.fromCallable(() -> NewPipeService.get().getDetails(targetId))
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(nextVideo -> {
+                                        if (getActivity() != null && nextVideo != null) {
+                                            YouTubePlayer.launch(nextVideo, getActivity());
+                                            getActivity().finish();
+                                        }
+                                    }, err -> Logger.e(YouTubePlayerV2Fragment.this, "Auto-play next error: " + err.getMessage(), err))
+                            );
+                        }
+                    }
+
                 }
 
                 @Override
