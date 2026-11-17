@@ -309,7 +309,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                     videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
 
                                         if (videoIsPlaying) {
-                        preventDevicesSleeping(true);
+                        preventDeviceSleeping(true);
                         playbackSpeedController.updateMenu();
 
                         // AUTO-FULLSCREEN: sembunyikan ActionBar, kontrol, & nav bar saat video mulai diputar
@@ -322,7 +322,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                             fragmentBinding.playerView.hideController();
                         }
                     } else {
-                        preventDevicesSleeping(false);
+                        preventDeviceSleeping(false);
                     }
 
                     if (playbackStateListener != null) {
