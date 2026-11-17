@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import free.rm.skytube.R;
+import free.rm.skytube.app.SkyTubeApp;
 import free.rm.skytube.businessobjects.YouTube.POJOs.CardData;
 import free.rm.skytube.businessobjects.YouTube.POJOs.YouTubeAPI;
 import free.rm.skytube.businessobjects.YouTube.POJOs.YouTubeAPIKey;
@@ -38,7 +40,7 @@ public class GetFeaturedVideos extends GetYouTubeVideos {
                 "nextPageToken");
         videosList.setKey(YouTubeAPIKey.get().getYouTubeAPIKey());
         videosList.setChart("mostPopular");
-        videosList.setMaxResults(getMaxResults());
+        videosList.setMaxResults(50L);
         nextPageToken = null;
         noMoreVideoPages = false;
     }
@@ -73,5 +75,11 @@ public class GetFeaturedVideos extends GetYouTubeVideos {
         }
 
         return Collections.emptyList();
+    }
+
+    protected String getPreferredRegion() {
+        String region = SkyTubeApp.getPreferenceManager()
+                .getString(SkyTubeApp.getStr(R.string.pref_key_preferred_region), "").trim();
+        return (region.isEmpty() ? null : region);
     }
 }
