@@ -66,8 +66,4 @@ public class ValidateYouTubeAPIKey extends GetFeaturedVideos {
 		return isKeyValid;
 	}
 
-
-	
-	}
-
 }
