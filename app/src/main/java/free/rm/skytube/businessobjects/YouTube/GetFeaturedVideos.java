@@ -17,118 +17,61 @@
 
 package free.rm.skytube.businessobjects.YouTube;
 
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import free.rm.skytube.R;
-import free.rm.skytube.app.SkyTubeApp;
-import free.rm.skytube.businessobjects.Logger;
 import free.rm.skytube.businessobjects.YouTube.POJOs.CardData;
-import free.rm.skytube.businessobjects.YouTube.POJOs.YouTubeAPI;
-import free.rm.skytube.businessobjects.YouTube.POJOs.YouTubeAPIKey;
-import free.rm.skytube.businessobjects.YouTube.POJOs.YouTubeVideo;
+import free.rm.skytube.businessobjects.YouTube.newpipe.NewPipeException;
+import free.rm.skytube.businessobjects.YouTube.newpipe.NewPipeService;
+import free.rm.skytube.businessobjects.YouTube.newpipe.VideoPager;
 
 /**
- * Get today's featured YouTube videos.
+ * Menampilkan 6 kartu acara anak pilihan di halaman awal (Featured).
  */
 public class GetFeaturedVideos extends GetYouTubeVideos {
 
-	protected YouTube.Videos.List videosList = null;
+    private static final String[] KIDS_SHOWS = {
+        "Polisi Labrador Indonesia",
+        "Upin Ipin",
+        "BabyBus Indonesia",
+        "Leo si penjaga alam",
+        "Like nastya Indonesia",
+        "Sesame English"
+    };
 
+    @Override
+    public void init() {
+        noMoreVideoPages = false;
+    }
 
-	@Override
-	public void init() throws IOException {
-		videosList = YouTubeAPI.create().videos().list("snippet, statistics, contentDetails");
-		videosList.setFields("items(id, snippet/defaultAudioLanguage, snippet/defaultLanguage, snippet/publishedAt, snippet/title, snippet/channelId, snippet/channelTitle," +
-				"snippet/thumbnails, contentDetails/duration, statistics)," +
-				"nextPageToken");
-		videosList.setKey(YouTubeAPIKey.get().getYouTubeAPIKey());
-		videosList.setChart("mostPopular");
-		videosList.setMaxResults(getMaxResults());
-		nextPageToken = null;
-	}
+    @Override
+    public List<CardData> getNextVideos() {
+        setLastException(null);
 
-	@Override
-	public void resetKey() {
-		videosList.setKey(YouTubeAPIKey.get().getYouTubeAPIKey());
-	}
+        if (!noMoreVideoPages) {
+            noMoreVideoPages = true;
+            List<CardData> result = new ArrayList<>();
 
-	@Override
-	public List<CardData> getNextVideos() {
-		setLastException(null);
+            for (String query : KIDS_SHOWS) {
+                try {
+                    VideoPager pager = NewPipeService.get().getSearchResult(query);
+                    List<CardData> items = pager.getNextPage();
+                    if (items != null && !items.isEmpty()) {
+                        result.add(items.get(0));
+                    }
+                } catch (NewPipeException e) {
+                    setLastException(e);
+                }
+            }
+            return result;
+        }
 
-		if (!noMoreVideoPages()) {
-			try {
-				// set the page token/id to retrieve
-				videosList.setPageToken(nextPageToken);
+        return Collections.emptyList();
+    }
 
-				// set the preferred region (placed here to reflect any changes performed at runtime)
-				videosList.setRegionCode(getPreferredRegion());
-
-				// communicate with YouTube
-				VideoListResponse response = videosList.execute();
-
-				// get videos
-				List<Video> searchResultList = response.getItems();
-
-				// set the next page token
-				nextPageToken = response.getNextPageToken();
-
-				// if nextPageToken is null, it means that there are no more videos
-				if (nextPageToken == null)
-					noMoreVideoPages = true;
-				return toYouTubeVideoList(searchResultList);
-			} catch (IOException e) {
-				setLastException(e);
-				Logger.e(this, "Error has occurred while getting Featured Videos:" + e.getMessage(), e);
-			}
-		}
-		return Collections.emptyList();
-	}
-
-
-	/**
-	 * Converts {@link List} of {@link Video} to {@link List} of {@link YouTubeVideo}.
-	 *
-	 * @param videoList {@link List} of {@link Video}.
-	 * @return {@link List} of {@link YouTubeVideo}.
-	 */
-	private List<CardData> toYouTubeVideoList(List<Video> videoList) {
-		List<CardData> youTubeVideoList = new ArrayList<>();
-
-		if (videoList != null) {
-			for (Video video : videoList) {
-				try {
-					YouTubeVideo yv = new YouTubeVideo(video);
-					youTubeVideoList.add(yv);
-				} catch (Exception ex) {
-					Logger.e(this, "Unable to convert video: " + video + ", error:" + ex.getMessage(), ex);
-				}
-			}
-		}
-
-		return youTubeVideoList;
-	}
-
-
-	private String getPreferredRegion() {
-		String region = SkyTubeApp.getPreferenceManager()
-				.getString(SkyTubeApp.getStr(R.string.pref_key_preferred_region), "").trim();
-		return (region.isEmpty() ? null : region);
-	}
-
-
-	/**
-	 * @return The maximum number of items that should be retrieved per YouTube query.
-	 */
-	protected Long getMaxResults() {
-		return 50L;
-	}
-
+    @Override
+    public boolean hasMoreVideoPages() {
+        return !noMoreVideoPages;
+    }
 }
