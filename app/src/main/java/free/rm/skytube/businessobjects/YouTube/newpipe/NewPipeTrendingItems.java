@@ -23,6 +23,7 @@ public class NewPipeTrendingItems extends NewPipeVideos {
 
     @Override
     protected VideoPager createNewPager() throws NewPipeException {
-        return NewPipeService.get().getTrending();
+        return NewPipeService.get().getSearchResult("Trending Musik Indonesia Terbaru");
+
     }
 }
