@@ -415,7 +415,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
             player.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT);
             fragmentBinding.playerView.setPlayer(player);
         }
-
+    }
 
 @Override
 public void onPlayerError(PlaybackException error) {
