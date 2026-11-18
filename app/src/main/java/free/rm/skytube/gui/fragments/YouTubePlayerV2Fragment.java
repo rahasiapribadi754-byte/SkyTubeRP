@@ -1015,10 +1015,12 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                 PlaybackStatusDb.getPlaybackStatusDb().setVideoPositionInBackground(youTubeVideo, player.getCurrentPosition()));
     }
 
-    @Override
+        @Override
     public void onDestroy() {
+        autoPauseHandler.removeCallbacks(autoPauseRunnable);
         compositeDisposable.clear();
         super.onDestroy();
+
         // stop the player from playing (when this fragment is going to be destroyed) and clean up
         player.stop();
         player.release();
