@@ -406,8 +406,11 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                                     }, err -> Logger.e(YouTubePlayerV2Fragment.this, "Auto-play next error: " + err.getMessage(), err))
                 );
             }
+        }
     });
+    }
 }
+
 
 @Override
 public void onPlayerError(PlaybackException error) {
