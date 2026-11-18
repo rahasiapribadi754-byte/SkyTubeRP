@@ -86,5 +86,11 @@
 		app:key="@string/pref_key_playback_speed"
 		app:summary="@string/pref_summary_playback_speed"
 		app:title="@string/pref_title_playback_speed" />
-
+    <CheckBoxPreference
+        app:defaultValue="false"
+        app:key="pref_key_auto_pause_60m"
+        app:title="Auto-pause 60 menit"
+        app:summary="Otomatis jeda pemutaran setelah 60 menit"
+        app:iconSpaceReserved="false" />
+	
 </PreferenceScreen>
