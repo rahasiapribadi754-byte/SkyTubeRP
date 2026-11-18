@@ -320,11 +320,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                 public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                     Logger.i(this, ">> onPlayerStateChanged " + playWhenReady + " state=" + playbackState);
                     videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
-        player.addListener(new Player.Listener() {
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                Logger.i(this, ">> onPlayerStateChanged " + playWhenReady + " " + playbackState);
-                videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
+        
 
                 // TEMPELKAN KODE BAGIAN B DI SINI (BARIS 323)
                 autoPauseHandler.removeCallbacks(autoPauseRunnable);
@@ -357,7 +353,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                     
                                         if (videoIsPlaying) {
                         preventDeviceSleeping(true);
-                        playbackSpeedController.updateMenu();
+                        
 
                         // AUTO-FULLSCREEN: sembunyikan ActionBar, kontrol, & nav bar saat video mulai diputar
                         hideNavigationBar();
