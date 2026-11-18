@@ -429,7 +429,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                             .onPositive((dialog, which) -> {
                                 if (askForDelete) {
                                     compositeDisposable.add(
-                                            DownloadedVideosDb.getVideoDownloadsDb().removeDownload(ctx, youTubeVideo)
+                                            DownloadedVideosDb.getVideoDownloadsDb().removeDownload(ctx, videoId)
                                                     .subscribe(
                                                             status -> closeActivity(),
                                                             err -> Logger.e(YouTubePlayerV2Fragment.this, "Error removing downloaded video", err)
