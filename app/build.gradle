@@ -199,7 +199,7 @@ dependencies {
 /** Debug **/
     // debugImplementation because LeakCanary should only run in debug builds
     // Memory leak detection
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
+   // debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 
 /** Flavor **/
     // Proprietary modules
