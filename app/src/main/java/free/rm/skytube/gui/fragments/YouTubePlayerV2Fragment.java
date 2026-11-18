@@ -409,10 +409,17 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                         }
                     }
 
-                }
+                            }
+        });
+        player.setPlayWhenReady(true);
+        player.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+        fragmentBinding.playerView.setPlayer(player);
+    }
+}
 
-                @Override
-                public void onPlayerError(PlaybackException error) {
+@Override
+public void onPlayerError(PlaybackException error) {
+
                     Logger.e(this, ":: onPlayerError " + error.getMessage(), error);
 
                     saveVideoPosition();
@@ -453,12 +460,7 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                     }
                     return false;
                 }
-            });
-            player.setPlayWhenReady(true);
-            player.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);    // ensure that videos are played in their correct aspect ratio
-            fragmentBinding.playerView.setPlayer(player);
-        }
-    }
+
 
     private SimpleExoPlayer createExoPlayer() {
         Context context = getContext();
