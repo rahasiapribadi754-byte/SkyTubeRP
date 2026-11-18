@@ -400,20 +400,13 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                                             getActivity().finish();
                                         }
                                     }, err -> Logger.e(YouTubePlayerV2Fragment.this, "Auto-play next error: " + err.getMessage(), err))
-                            );
+                             );
                         }
                     }
                 }
-            });
-        }
-    }
 
-
-
-@Override
-public void onPlayerError(PlaybackException error) {
-
-
+                @Override
+                public void onPlayerError(PlaybackException error) {
                     Logger.e(this, ":: onPlayerError " + error.getMessage(), error);
 
                     saveVideoPosition();
@@ -436,15 +429,20 @@ public void onPlayerError(PlaybackException error) {
                             .onPositive((dialog, which) -> {
                                 if (askForDelete) {
                                     compositeDisposable.add(
-                                            DownloadedVideosDb.getVideoDownloadsDb().removeDownload(ctx, youTubeVideo.getVideoId())
+                                            DownloadedVideosDb.getVideoDownloadsDb().removeDownload(ctx, youTubeVideo)
                                                     .subscribe(
                                                             status -> closeActivity(),
-                                                            err -> Logger.e(YouTubePlayerV2Fragment.this, "Error:" + err.getMessage(), err)));
+                                                            err -> Logger.e(YouTubePlayerV2Fragment.this, "Error removing downloaded video", err)
+                                                    )
+                                    );
                                 } else {
                                     closeActivity();
                                 }
                             }).show();
                 }
+            });
+        }
+    }
 
                 private boolean askForDelete(PlaybackException error) {
                     Throwable cause = error.getCause();
