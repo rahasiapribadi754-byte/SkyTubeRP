@@ -137,6 +137,19 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
     private VideoDescriptionBinding videoDescriptionBinding;
 
     private SimpleExoPlayer player;
+        private static long autoPauseStartTimeMs = 0;
+    private static final long AUTO_PAUSE_DURATION_MS = 60L * 60L * 1000L; // 60 menit
+    private final Handler autoPauseHandler = new Handler(Looper.getMainLooper());
+    private final Runnable autoPauseRunnable = () -> {
+        if (player != null) {
+            player.setPlayWhenReady(false);
+            autoPauseStartTimeMs = 0;
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Auto-pause: 60 menit selesai", Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+    
     private long playerInitialPosition = 0;
     private DatasourceBuilder datasourceBuilder;
 
@@ -307,7 +320,41 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                 public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                     Logger.i(this, ">> onPlayerStateChanged " + playWhenReady + " state=" + playbackState);
                     videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                Logger.i(this, ">> onPlayerStateChanged " + playWhenReady + " " + playbackState);
+                videoIsPlaying = playbackState == Player.STATE_READY && playWhenReady;
 
+                // TEMPELKAN KODE BAGIAN B DI SINI (BARIS 323)
+                autoPauseHandler.removeCallbacks(autoPauseRunnable);
+                boolean isAutoPauseEnabled = getContext() != null &&
+                        androidx.preference.PreferenceManager.getDefaultSharedPreferences(getContext())
+                                .getBoolean("pref_key_auto_pause_60m", false);
+
+                if (isAutoPauseEnabled) {
+                    if (playWhenReady && (playbackState == Player.STATE_READY || playbackState == Player.STATE_BUFFERING)) {
+                        long now = System.currentTimeMillis();
+                        if (autoPauseStartTimeMs == 0) {
+                            autoPauseStartTimeMs = now;
+                        }
+                        long remainingMs = AUTO_PAUSE_DURATION_MS - (now - autoPauseStartTimeMs);
+                        if (remainingMs <= 0) {
+                            player.setPlayWhenReady(false);
+                            autoPauseStartTimeMs = 0;
+                            Toast.makeText(getContext(), "Auto-pause: 60 menit selesai", Toast.LENGTH_LONG).show();
+                        } else {
+                            autoPauseHandler.postDelayed(autoPauseRunnable, remainingMs);
+                        }
+                    } else if (!playWhenReady) {
+                        autoPauseStartTimeMs = 0;
+                    }
+                } else {
+                    autoPauseStartTimeMs = 0;
+                }
+
+                if (videoIsPlaying) {
+                    
                                         if (videoIsPlaying) {
                         preventDeviceSleeping(true);
                         playbackSpeedController.updateMenu();
