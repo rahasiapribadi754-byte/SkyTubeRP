@@ -349,7 +349,6 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                     autoPauseStartTimeMs = 0;
                 }
 
-                if (videoIsPlaying) {
                     
                                         if (videoIsPlaying) {
                         preventDeviceSleeping(true);
@@ -407,18 +406,17 @@ public class YouTubePlayerV2Fragment extends ImmersiveModeFragment implements Yo
                                     }, err -> Logger.e(YouTubePlayerV2Fragment.this, "Auto-play next error: " + err.getMessage(), err))
                             );
                         }
-                    }
-
-                }
-            });
-            player.setPlayWhenReady(true);
-            player.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-            fragmentBinding.playerView.setPlayer(player);
-        }
+            }
+        });
+        player.setPlayWhenReady(true);
+        player.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+        fragmentBinding.playerView.setPlayer(player);
     }
+}
 
 @Override
 public void onPlayerError(PlaybackException error) {
+
 
                     Logger.e(this, ":: onPlayerError " + error.getMessage(), error);
 
